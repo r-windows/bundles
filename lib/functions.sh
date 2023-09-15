@@ -19,10 +19,11 @@ download_libs(){
   else
     pkgdeps=$(pacman -Si $pkg | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*')
   fi
-  echo "Bundling: $pkg $pkgdeps"
+  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
+  echo "Bundling: $pkg $version"
 
   # Prep output dir
-  bundle="$package-$arch"
+  bundle="$package-$version-$arch"
   dist="$PWD/dist"
   rm -Rf $bundle
   mkdir -p $dist $bundle/lib
@@ -30,7 +31,6 @@ download_libs(){
   # Tmp download dir
   OUTPUT=$(mktemp -d)
   URLS=$(pacman -Sp $pkg $pkgdeps --cache=$OUTPUT)
-  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
   for URL in $URLS; do
     curl -OLs $URL
     FILE=$(basename $URL)
@@ -45,7 +45,7 @@ download_libs(){
   rm -f ${OUTPUT}/*/lib/*.dll.a
   cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
   cp -Rf ${OUTPUT}/*/lib/pkgconfig $bundle/lib/ || true
-  (cd $bundle; tar cfJ "$dist/$bundle-$version.tar.xz" *)
+  (cd $bundle; tar cfJ "$dist/$bundle.tar.xz" *)
   rm -Rf $bundle
 }
 
