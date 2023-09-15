@@ -1,0 +1,35 @@
+on:
+  workflow_dispatch:
+    inputs:
+      library:
+        description: 'Which library to bundle'
+        required: true
+
+name: Release a single library bundle
+
+jobs:
+  Build:
+    runs-on: windows-latest
+    steps:
+      - name: Prepare git
+        run: |
+          git config --global core.autocrlf false
+          git config --global user.email '121622595+jeroen[bot]@users.noreply.github.com'
+          git config --global user.name  'Jeroen (via CI)'
+
+      - uses: msys2/setup-msys2@v2
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: bundle
+        name: Create bundle
+        run: ./${{ github.event.inputs.library }}.sh
+        shell: msys2 {0}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.library }}-${{ steps.bundle.outputs.version }}
+          files: dist/*.xz
