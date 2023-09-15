@@ -3,8 +3,8 @@ set -e
 
 prepare_pacman(){
   curl -sSL https://raw.githubusercontent.com/r-windows/rtools-next/master/pacman.conf > /etc/pacman.conf
-  pacman -Scc
-  pacman -Syy
+  pacman -Scc --noconfirm
+  pacman -Syy --noconfirm
 }
 
 arch_prefix(){
@@ -17,30 +17,45 @@ download_libs(){
   if [ "$deps" ]; then
     pkgdeps=$(arch_prefix $deps)
   else
-    pkgdeps=$(pacman -Si $pkg | grep 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*')
+    pkgdeps=$(pacman -Si $pkg | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*')
   fi
+  echo "Bundling: $pkg $pkgdeps"
 
+  # Prep output dir
+  bundle="$package-$arch"
+  dist="$PWD/dist"
+  rm -Rf $bundle
+  mkdir -p $dist $bundle/lib
+
+  # Tmp download dir
   OUTPUT=$(mktemp -d)
   URLS=$(pacman -Sp $pkg $pkgdeps --cache=$OUTPUT)
-  VERSION=$(pacman -Si $pkg | awk '/^Version/{print $3}')
+  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
   for URL in $URLS; do
     curl -OLs $URL
     FILE=$(basename $URL)
     echo "Extracting: $FILE"
-    echo " - $FILE" >> readme.md
+    echo " - $FILE" >> $bundle/files.md
     tar xf $FILE -C ${OUTPUT}
     unlink $FILE
   done
 
-  bundle="$package-$arch"
-  mkdir -p $bundle/lib
+  # Extract files
   cp -Rv ${OUTPUT}/*/include $bundle/
+  rm -f ${OUTPUT}/*/lib/*.dll.a
   cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
-  tar cfJ "$bundle.tar.xz" $bundle
+  cp -Rf ${OUTPUT}/*/lib/pkgconfig $bundle/lib/ || true
+  (cd $bundle; tar cfJ "$dist/$bundle-$version.tar.xz" *)
   rm -Rf $bundle
 }
 
 create_bundles() {
   prepare_pacman
   arch="ucrt-x86_64" download_libs
+  arch="clang-aarch64" download_libs
+
+  # Set success variables
+  if [ "$GITHUB_OUTPUT" ]; then
+    echo "version=$version" >> $GITHUB_OUTPUT
+  fi
 }
