@@ -45,7 +45,7 @@ download_libs(){
   rm -f ${OUTPUT}/*/lib/*.dll.a
   cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
   cp -Rf ${OUTPUT}/*/lib/pkgconfig $bundle/lib/ || true
-  (cd $bundle; tar cfJ "$dist/$bundle.tar.xz" *)
+  tar cfJ "$dist/$bundle.tar.xz" $bundle
   rm -Rf $bundle
 }
 
