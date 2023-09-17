@@ -25,7 +25,7 @@ jobs:
 
       - id: bundle
         name: Create bundle
-        run: ./${{ github.event.inputs.package }}.sh
+        run: ./build.sh ${{ github.event.inputs.package }}
         shell: msys2 {0}
 
       - name: Release

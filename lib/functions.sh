@@ -12,15 +12,16 @@ arch_prefix(){
 }
 
 download_libs(){
-  # Download files (-dd skips dependencies)
   pkg=$(arch_prefix $package)
+  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
+  echo "Bundling: $pkg $version"
+
+  # Find dependencies
   if [ "$deps" ]; then
     pkgdeps=$(arch_prefix $deps)
   else
-    pkgdeps=$(pacman -Si $pkg | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*')
+    pkgdeps=$(pacman -Si $pkg | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*' || true)
   fi
-  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
-  echo "Bundling: $pkg $version"
 
   # Prep output dir
   bundle="$package-$version-$arch"
