@@ -8,8 +8,9 @@ on:
 name: Release a package bundle
 
 jobs:
-  Build:
+  Bundler:
     runs-on: windows-latest
+    name: Bundle ${{ github.event.inputs.package }}
     steps:
       - name: Prepare git
         run: |

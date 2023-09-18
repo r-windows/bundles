@@ -2,7 +2,7 @@
 set -e
 
 prepare_pacman(){
-  curl -sSL https://raw.githubusercontent.com/r-windows/rtools-next/master/pacman.conf > /etc/pacman.conf
+  cp -f pacman.conf /etc/pacman.conf
   pacman -Scc --noconfirm
   pacman -Syy --noconfirm
 }

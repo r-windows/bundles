@@ -2,6 +2,6 @@
 source lib/functions.sh
 export package="$1"
 if [ -f "${package}.sh" ]; then
-  source ${package}.sh
+  source ./${package}.sh
 fi
 create_bundles
