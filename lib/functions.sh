@@ -13,7 +13,7 @@ arch_prefix(){
 
 download_libs(){
   pkg=$(arch_prefix $package)
-  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}')
+  version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}' | cut -d '-' -f1)
   echo "Bundling: $pkg $version"
 
   # Find dependencies
