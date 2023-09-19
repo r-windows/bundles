@@ -53,6 +53,14 @@ download_libs(){
   rm -f ${OUTPUT}/*/lib/*.dll.a
   cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
   cp -Rf ${OUTPUT}/*/lib/pkgconfig $bundle/lib/ || true
+
+  # Copy xtra files
+  if [ "$extra_files" ]; then
+    for file in $extra_files; do
+      mkdir -p $(dirname $bundle/${file})
+      cp -Rv ${OUTPUT}/*/${file} $bundle/${file}
+    done
+  fi
   tar cfJ "$dist/$bundle.tar.xz" $bundle
   rm -Rf $bundle
 }
