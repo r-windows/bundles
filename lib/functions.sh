@@ -8,19 +8,27 @@ prepare_pacman(){
 }
 
 arch_prefix(){
-  echo "$1" | sed "s/[^ ]* */mingw-w64-${arch}-&/g"
+  echo "$@" | sed "s/[^ ]*/mingw-w64-${arch}-&/g"
+}
+
+skip_args(){
+  echo "$@" | sed "s/[^ ]*/--assume-installed=mingw-w64-${arch}-&=99.99/g"
 }
 
 download_libs(){
   pkg=$(arch_prefix $package)
   version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}' | cut -d '-' -f1)
+  skiplist=$(skip_args gcc-libs libiconv libwinpthread-git)
   echo "Bundling: $pkg $version"
+  #echo "Skiplist: $skiplist"
 
   # Find dependencies
   if [ "$deps" ]; then
     pkgdeps=$(arch_prefix $deps)
+    URLS=$(pacman -Spdd $pkg $pkgdeps --cache=$OUTPUT)
   else
-    pkgdeps=$(pacman -Si $pkg | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*' || true)
+    URLS=$(pacman -Sp $pkg $skiplist --cache=$OUTPUT)
+    #pkgdeps=$(pacman -Si $pkg --assume-installed="$skip" | grep -m 1 'Depends On' | grep -o 'mingw-w64-[_.a-z0-9-]*' || true)
   fi
 
   # Prep output dir
@@ -31,7 +39,6 @@ download_libs(){
 
   # Tmp download dir
   OUTPUT=$(mktemp -d)
-  URLS=$(pacman -Sp $pkg $pkgdeps --cache=$OUTPUT)
   for URL in $URLS; do
     curl -OLs $URL
     FILE=$(basename $URL)
