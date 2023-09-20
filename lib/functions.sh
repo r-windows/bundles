@@ -18,7 +18,7 @@ skip_args(){
 download_libs(){
   pkg=$(arch_prefix $package)
   version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}' | cut -d '-' -f1)
-  skiplist=$(skip_args gcc-libs libiconv libwinpthread-git)
+  skiplist=$(skip_args gcc-libs libiconv libwinpthread-git libwinpthread)
   echo "Bundling: $pkg $version"
   #echo "Skiplist: $skiplist"
 
