@@ -5,7 +5,7 @@ on:
         description: 'Which package to bundle'
         required: true
 
-name: Release a package bundle
+name: Create Windows bundles
 
 jobs:
   Bundler:
