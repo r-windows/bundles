@@ -51,7 +51,8 @@ download_libs(){
   # Extract files
   cp -Rv ${OUTPUT}/*/include $bundle/
   rm -f ${OUTPUT}/*/lib/*.dll.a
-  cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
+  #cp -v ${OUTPUT}/*/lib/*.a $bundle/lib/
+  find ${OUTPUT}/*/lib -name \*.a -exec cp -v {} $bundle/lib/ \;
   cp -Rf ${OUTPUT}/*/lib/pkgconfig $bundle/lib/ || true
 
   # Copy xtra files
