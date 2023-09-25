@@ -22,6 +22,20 @@ download_libs(){
   echo "Bundling: $pkg $version"
   #echo "Skiplist: $skiplist"
 
+  # Check if version already exists
+  tagurl="https://github.com/r-windows/bundles/releases/tag/$package-$version"
+  status=$(curl -sSLIw '%{http_code}' -o /dev/null $tagurl);
+  if [ "$status" = "404" ]; then
+    echo "Tag does not exist yet. Good."
+  else
+    echo "Tag already exists: $tagurl"
+    if [ "$overwrite" = "true" ]; then
+      echo "Overwriting as requested"
+    else
+      exit 1
+    fi
+  fi
+
   # Find dependencies
   if [ "$deps" ]; then
     pkgdeps=$(arch_prefix $deps)

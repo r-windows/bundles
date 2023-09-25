@@ -4,6 +4,11 @@ on:
       package:
         description: 'Which package to bundle'
         required: true
+      overwrite:
+        description: 'Overwrite existing bundles'
+        type: boolean
+        required: false
+        default: false
 
 name: Create Windows bundles
 
@@ -26,8 +31,11 @@ jobs:
 
       - id: bundle
         name: Create bundle
-        run: ./build.sh ${{ github.event.inputs.package }}
         shell: msys2 {0}
+        run: ./build.sh
+        env:
+          package: ${{ github.event.inputs.package }}
+          overwrite: ${{ github.event.inputs.overwrite }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
