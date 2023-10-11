@@ -76,7 +76,7 @@ download_libs(){
       cp -Rv ${OUTPUT}/*/${file} $bundle/${file}
     done
   fi
-  tar cfJ "$dist/$bundle.tar.xz" $bundle
+  tar -cJ --no-xattrs -f "$dist/$bundle.tar.xz" $bundle
   rm -Rf $bundle
 }
 
