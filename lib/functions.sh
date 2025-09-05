@@ -18,7 +18,7 @@ skip_args(){
 download_libs(){
   pkg=$(arch_prefix $package)
   version=$(pacman -Si $pkg  | grep -m 1 '^Version' | awk '/^Version/{print $3}' | cut -d '-' -f1)
-  skiplist=$(skip_args gcc-libs libiconv libwinpthread-git libwinpthread)
+  skiplist=$(skip_args cc-libs gcc-libs libiconv tzdata omp libwinpthread-git libwinpthread)
   echo "Bundling: $pkg $version"
   #echo "Skiplist: $skiplist"
 
@@ -35,6 +35,10 @@ download_libs(){
       exit 1
     fi
   fi
+
+  # Show dependency tree
+  echo "Dependencies for $pkg:"
+  pactree -su $pkg
 
   # Find dependencies
   if [ "$deps" ]; then
